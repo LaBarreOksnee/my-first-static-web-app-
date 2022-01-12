@@ -1,6 +1,9 @@
 <template>
-  <b-jumbotron bg-variant="info" text-variant="white" border-variant="dark" v-bind:header="epicData.ticker.value" lead="Number of Accounts">
-  </b-jumbotron>
+  <div>
+    <b-jumbotron bg-variant="info" text-variant="white" border-variant="dark" v-bind:header="epicData.ticker.value" lead="Number of Accounts">
+    </b-jumbotron>
+    {{ epicData.ticker.id }}
+  </div>
 </template>
 
 <script>
