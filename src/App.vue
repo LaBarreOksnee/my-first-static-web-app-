@@ -1,16 +1,24 @@
 <template>
-  <bar-chart v-if="loaded" :chart-data="associations" :chart-labels="labels"></bar-chart>
+  <div>
+    <ticker :ticker="getTickerFromAssociationsArray(associations)"></ticker>
+    <br/>
+    <bar-chart v-if="loaded" :chart-data="associations" :chart-labels="labels"></bar-chart>
+  </div>
 </template>
 
 <script>
 import BarChart from './Chart.vue'
+import Ticker from './Ticker'
 
 export default {
   name: "App",  
   components: {
-    BarChart
+    BarChart,
+    Ticker
   },
-  props: {},
+  props: {
+
+  },
   data () {
     return {
       package: null,
@@ -20,7 +28,8 @@ export default {
       associations: [],
       labels: [],
       showError: false,
-      errorMessage: 'Please enter a package name'
+      errorMessage: 'Please enter a package name',
+      ticker: null
     }
   },
   async mounted() {
@@ -72,8 +81,12 @@ export default {
           data[i] = parseInt(value);
         }
       }
-      //console.log(data);
       return data;
+    },
+    getTickerFromAssociationsArray: function(arr) {
+      const ticker = arr.slice(-1)[0] 
+      console.log("Ticker: " + this.ticker);
+      return ticker
     },
     getDatesFromArray: function(arr) {
       var data = new Array();
@@ -85,7 +98,7 @@ export default {
           data[i] = value;
         }
       }
-      console.log(data);
+      //console.log(data);
       return data;
     }
   }
