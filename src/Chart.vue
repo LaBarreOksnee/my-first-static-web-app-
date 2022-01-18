@@ -4,21 +4,35 @@
     extends: Bar,
     props: {
       chartData: {
-        type: [Array, Object],
+        type: Array,
         required: false
       },
       chartLabels: {
         type: Array,
         required: true
+      },
+      deltaData: {
+        type: Array,
+        required: false
       }
     },
     data () {
       return {
         options: {
+          title: {
+            display: true,
+            text: 'Association Count and Percent Change Month by Month'
+          },
           scales: {
+            x: {
+              stacked: true
+            },
+            y: {
+              stacked: true
+            },
             yAxes: [{
               ticks: {
-                beginAtZero: true
+                beginAtZero: false
               },
               gridLines: {
                 display: true
@@ -31,7 +45,7 @@
             }]
           },
           legend: {
-            display: false
+            display: true
           },
           responsive: true,
           maintainAspectRatio: false
@@ -45,11 +59,22 @@
           {
             label: 'Associations',
             borderColor: '#249EBF',
-            pointBackgroundColor: 'white',
+            pointBackgroundColor: 'blue',
             borderWidth: 1,
             pointBorderColor: '#249EBF',
-            backgroundColor: 'transparent',
+            backgroundColor: 'blue',
             data: this.chartData
+          },
+          {
+            label: 'Change (divide by 1000)',
+            borderColor: '#FFFFFF',
+            pointBackgroundColor: 'red',
+            borderWidth: 1,
+            pointBorderColor: '#249EBF',
+            backgroundColor: 'red',
+            data: this.deltaData,
+            type: 'line',
+            order: 0
           }
         ]
       }, this.options)

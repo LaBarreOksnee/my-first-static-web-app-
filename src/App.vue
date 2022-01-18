@@ -2,7 +2,7 @@
   <div>
     <ticker :ticker="getTickerFromAssociationsArray(associations)"></ticker>
     <br/>
-    <bar-chart v-if="loaded" :chart-data="associations" :chart-labels="labels"></bar-chart>
+    <bar-chart v-if="loaded" :chart-data="associations" :delta-data="getAssociationDifferences(associations)" :chart-labels="labels"></bar-chart>
   </div>
 </template>
 
@@ -85,7 +85,7 @@ export default {
     },
     getTickerFromAssociationsArray: function(arr) {
       const ticker = arr.slice(-1)[0] 
-      console.log("Ticker: " + this.ticker);
+      //console.log("Ticker: " + ticker);
       return ticker
     },
     getDatesFromArray: function(arr) {
@@ -100,6 +100,25 @@ export default {
       }
       //console.log(data);
       return data;
+    },
+    getAssociationDifferences: function(arr) {
+      var differences = new Array;
+      var percentages = new Array;
+      for (let i=0; i<arr.length; i++) {
+        if (i===0) {
+          differences[i] = 0;
+          percentages[i] = 0;
+        } else {
+          try {
+            differences[i] = arr[i] - arr[i-1];
+            percentages[i] = differences[i]/arr[i]*100*1000;
+          } catch (IndexOutOfBoundsException){
+            differences[i] = arr[i];
+            percentages[i] = 0;
+          }
+        }
+      }
+      return percentages;
     }
   }
 }

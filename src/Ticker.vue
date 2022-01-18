@@ -1,5 +1,5 @@
 <template class="container">
-    <b-jumbotron bg-variant="info" text-variant="white" border-variant="dark" lead="Number of Associations" class="">
+    <b-jumbotron bg-variant="info" text-variant="white" border-variant="dark" lead="Number of Associations" class="text-center">
         <template #header>
             {{ ticker }}
         </template>
