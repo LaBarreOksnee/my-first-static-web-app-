@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ticker :ticker="getTickerFromAssociationsArray(associations)"></ticker>
+    <ticker :ticker="getTickerFromAssociationsArray(associations)" :up="getUpOrDown(associations)"></ticker>
     <br/>
     <bar-chart v-if="loaded" :chart-data="associations" :delta-data="getAssociationDifferences(associations)" :chart-labels="labels"></bar-chart>
   </div>
@@ -84,9 +84,9 @@ export default {
       return data;
     },
     getTickerFromAssociationsArray: function(arr) {
-      const ticker = arr.slice(-1)[0] 
+      const ticker = arr.slice(-1)[0];
       //console.log("Ticker: " + ticker);
-      return ticker
+      return ticker.toLocaleString();
     },
     getDatesFromArray: function(arr) {
       var data = new Array();
@@ -119,6 +119,15 @@ export default {
         }
       }
       return percentages;
+    },
+    getUpOrDown(arr) {
+      let up = false;
+      if (arr.slice(-1)[0] - arr.slice(-2)[0] >= 0) {
+        up = true;
+      } else {
+        up = false;
+      }
+      return up;
     }
   }
 }

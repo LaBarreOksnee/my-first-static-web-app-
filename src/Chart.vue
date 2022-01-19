@@ -21,7 +21,7 @@
         options: {
           title: {
             display: true,
-            text: 'Association Count and Percent Change Month by Month'
+            text: 'Association Count and Percent Change Month to Month'
           },
           scales: {
             x: {
