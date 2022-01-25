@@ -17,7 +17,7 @@ export default {
     Ticker
   },
   props: {
-
+    
   },
   data () {
     return {
@@ -29,7 +29,8 @@ export default {
       labels: [],
       showError: false,
       errorMessage: 'Please enter a package name',
-      ticker: null
+      ticker: null,
+      user: Object
     }
   },
   async mounted() {
@@ -44,6 +45,14 @@ export default {
     //console.log(this.message);
   },
   methods: {
+    getUserInfo: async function() {
+      const user = await fetch('/.auth/me');  
+      const payload = user.json;
+      const { clientPrincipal } = payload;
+      this.user = user;
+      console.log("User: " + clientPrincipal);
+      return true;
+    },
     convertToArray: function (data, delimiter=',') {
       // slice from start of text to the first \n index
       // use split to create an array from string by delimiter
@@ -86,7 +95,7 @@ export default {
     getTickerFromAssociationsArray: function(arr) {
       const ticker = arr.slice(-1)[0];
       //console.log("Ticker: " + ticker);
-      return ticker.toLocaleString();
+      return ticker;
     },
     getDatesFromArray: function(arr) {
       var data = new Array();
