@@ -2,18 +2,21 @@
   <div>
     <ticker :ticker="getTickerFromAssociationsArray(associations)" :up="getUpOrDown(associations)"></ticker>
     <br/>
-    <bar-chart v-if="loaded" :chart-data="associations" :delta-data="getAssociationDifferences(associations)" :chart-labels="labels"></bar-chart>
+    <bar-chart v-if="loaded" :chart-data="associations" :chart-labels="labels"></bar-chart>
+    <line-chart v-if="loaded" :chart-data="getAssociationDifferences(associations)" :chart-labels="labels"></line-chart>
   </div>
 </template>
 
 <script>
 import BarChart from './Chart.vue'
+import LineChart from './AssociationLineChart.vue'
 import Ticker from './Ticker'
 
 export default {
   name: "App",  
   components: {
     BarChart,
+    LineChart,
     Ticker
   },
   props: {
@@ -111,7 +114,7 @@ export default {
       return data;
     },
     getAssociationDifferences: function(arr) {
-      var differences = new Array;
+      var differences = new Number;
       var percentages = new Array;
       for (let i=0; i<arr.length; i++) {
         if (i===0) {
@@ -119,8 +122,8 @@ export default {
           percentages[i] = 0;
         } else {
           try {
-            differences[i] = arr[i] - arr[i-1];
-            percentages[i] = differences[i]/arr[i]*100*1000;
+            differences = (arr[i] - arr[i-1])/arr[i]*100;
+            percentages[i] = differences.toFixed(2);
           } catch (IndexOutOfBoundsException){
             differences[i] = arr[i];
             percentages[i] = 0;

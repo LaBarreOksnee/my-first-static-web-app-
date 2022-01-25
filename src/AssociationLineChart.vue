@@ -1,7 +1,7 @@
 <script>
-  import { Bar } from 'vue-chartjs'
+  import { Line } from 'vue-chartjs'
   export default {
-    extends: Bar,
+    extends: Line,
     props: {
       chartData: {
         type: Array,
@@ -17,7 +17,7 @@
         options: {
           title: {
             display: true,
-            text: 'Association Count Month to Month'
+            text: 'Association Percent Change Month to Month'
           },
           scales: {
             x: {
@@ -53,13 +53,15 @@
         labels: this.chartLabels,
         datasets: [
           {
-            label: 'Associations',
-            borderColor: '#249EBF',
-            pointBackgroundColor: 'blue',
+            label: 'Change',
+            borderColor: '#FFFFFF',
+            pointBackgroundColor: 'red',
             borderWidth: 1,
             pointBorderColor: '#249EBF',
-            backgroundColor: 'blue',
-            data: this.chartData
+            backgroundColor: 'red',
+            data: this.chartData,
+            type: 'line',
+            order: 0
           }
         ]
       }, this.options)
