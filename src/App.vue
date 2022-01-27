@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="username!=''">
+    <div v-if="loaded=true">
       <ticker :ticker="getTickerFromAssociationsArray(all_associations)" :up="getUpOrDown(all_associations)"></ticker>
       <br/>
       <p>
@@ -19,9 +19,6 @@
       <bar-chart v-if="loaded" :key="'B'+history" :chart-data="trimArray(all_associations)" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></bar-chart>
       <line-chart v-if="loaded" :key="'L'+history" :chart-data="trimArray(getAssociationDifferences(all_associations))" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></line-chart>
       <br/>
-    </div>
-    <div v-else>
-      <p>You are not logged in. Please login to view the ticker: <a href="/login">LOGIN</a></p>
     </div>
   </div> 
 </template>
