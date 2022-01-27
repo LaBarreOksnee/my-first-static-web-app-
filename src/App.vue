@@ -4,7 +4,6 @@
       <ticker :ticker="getTickerFromAssociationsArray(all_associations)" :up="getUpOrDown(all_associations)"></ticker>
       <br/>
       <p>
-        Logged in as: {{ username }}<br/>
         <span>Select the number of months to display:
           <select v-model="history">
             <option value=0>ALL</option>
