@@ -1,10 +1,29 @@
 <template>
-  <div>
-    <ticker :ticker="getTickerFromAssociationsArray(associations)" :up="getUpOrDown(associations)"></ticker>
-    <br/>
-    <bar-chart v-if="loaded" :chart-data="associations" :chart-labels="labels"></bar-chart>
-    <line-chart v-if="loaded" :chart-data="getAssociationDifferences(associations)" :chart-labels="labels"></line-chart>
-  </div>
+  <div class="container">
+    <div v-if="username!=''">
+      <ticker :ticker="getTickerFromAssociationsArray(all_associations)" :up="getUpOrDown(all_associations)"></ticker>
+      <br/>
+      <p>
+        Logged in as: {{ username }}<br/>
+        <span>Select the number of months to display:
+          <select v-model="history">
+            <option value=0>ALL</option>
+            <option>12</option>
+            <option>13</option>
+            <option>24</option>
+            <option>36</option>
+          </select>
+        </span>
+      </p>
+      <br/>
+      <bar-chart v-if="loaded" :key="'B'+history" :chart-data="trimArray(all_associations)" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></bar-chart>
+      <line-chart v-if="loaded" :key="'L'+history" :chart-data="trimArray(getAssociationDifferences(all_associations))" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></line-chart>
+      <br/>
+    </div>
+    <div v-else>
+      <p>You are not logged in. Please login to view the ticker: <a href="/login">LOGIN</a></p>
+    </div>
+  </div> 
 </template>
 
 <script>
@@ -28,33 +47,46 @@ export default {
       packageName: '',
       period: 'last-month',
       loaded: false,
+      all_associations: [],
       associations: [],
       labels: [],
       showError: false,
       errorMessage: 'Please enter a package name',
       ticker: null,
-      user: Object
+      username: '',
+      authenticated: false,
+      history: 0
     }
   },
   async mounted() {
-    this.loaded = false
-    //console.log("Before");
+    this.loaded = false;
     const response = await fetch("/api/message");
     const data = await response.text();
     this.message = this.convertToArray(data);
-    this.associations = this.getAssociationsFromArray(this.message);
+    this.all_associations = this.getAssociationsFromArray(this.message);
     this.labels = this.getDatesFromArray(this.message);
-    this.loaded = true
-    //console.log(this.message);
+    this.authenticated = this.getUserInfo();
+    this.loaded = true;
   },
   methods: {
-    getUserInfo: async function() {
-      const user = await fetch('/.auth/me');  
-      const payload = user.json;
-      const { clientPrincipal } = payload;
-      this.user = user;
-      console.log("User: " + clientPrincipal);
-      return true;
+    trimArray: function(arr) {
+      var arr2 = new Array();
+      if (this.history > 0) {
+        arr2 = arr.slice(Math.max(arr.length - this.history, 0));
+      } else {
+        arr2 = arr;
+      }
+      return arr2;
+    },
+    getUserInfo: function() {
+      var  username = ''
+      try { 
+        username = JSON.parse(localStorage["auth@aad"])["userDetails"];
+        this.authenticated = true;
+        this.username = username;
+      } catch (SyntaxError) {
+        this.authenticated = false;
+      }
     },
     convertToArray: function (data, delimiter=',') {
       // slice from start of text to the first \n index
@@ -79,8 +111,6 @@ export default {
         }, {});
         return el;
       });
-
-      // return the array
       return arr;
     },
     getAssociationsFromArray: function(arr) {
@@ -89,7 +119,6 @@ export default {
         let value = "";
         if (arr[i] !== undefined) {
           value = arr[i]["Associations"];
-          //console.log(value);
           data[i] = parseInt(value);
         }
       }
@@ -97,7 +126,6 @@ export default {
     },
     getTickerFromAssociationsArray: function(arr) {
       const ticker = arr.slice(-1)[0];
-      //console.log("Ticker: " + ticker);
       return ticker;
     },
     getDatesFromArray: function(arr) {
@@ -106,11 +134,9 @@ export default {
         let value = "";
         if (arr[i] !== undefined) {
           value = arr[i]["Date"];
-          //console.log(value);
           data[i] = value;
         }
       }
-      //console.log(data);
       return data;
     },
     getAssociationDifferences: function(arr) {

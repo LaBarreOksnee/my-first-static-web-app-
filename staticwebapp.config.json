@@ -5,7 +5,11 @@
         "redirect": "/.auth/login/aad"
     },
     {
-        "route": "/*",
+        "route": "/logout",
+        "redirect": "/.auth/logout"
+    },
+    {
+        "route": "/ticker",
         "allowedRoles": ["authenticated"]
     }
     ],
