@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="loaded=true">
+    <div>
       <ticker :ticker="getTickerFromAssociationsArray(all_associations)" :up="getUpOrDown(all_associations)"></ticker>
       <br/>
       <p>
@@ -8,16 +8,17 @@
           <select v-model="history">
             <option value=0>ALL</option>
             <option>12</option>
-            <option>13</option>
             <option>24</option>
             <option>36</option>
+            <option>48</option>
           </select>
         </span>
       </p>
       <br/>
-      <bar-chart v-if="loaded" :key="'B'+history" :chart-data="trimArray(all_associations)" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></bar-chart>
-      <line-chart v-if="loaded" :key="'L'+history" :chart-data="trimArray(getAssociationDifferences(all_associations))" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></line-chart>
+      <bar-chart v-if="loaded" :key="history" :chart-data="trimArray(all_associations)" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></bar-chart>
+      <line-chart v-if="loaded" :key="1+history" :chart-data="trimArray(getAssociationDifferences(all_associations))" :chart-labels="trimArray(this.getDatesFromArray(this.message))"></line-chart>
       <br/>
+      <activity-summary-chart v-if="loaded" :chart-data="getValuesFromDict(summaryActivities)" :chartLabels="getKeysFromDict(summaryActivities)"></activity-summary-chart>
     </div>
   </div> 
 </template>
@@ -26,13 +27,15 @@
 import BarChart from './Chart.vue'
 import LineChart from './AssociationLineChart.vue'
 import Ticker from './Ticker'
+import ActivitySummaryChart from './ActivitySummaryChart.vue'
 
 export default {
   name: "App",  
   components: {
     BarChart,
     LineChart,
-    Ticker
+    Ticker,
+    ActivitySummaryChart
   },
   props: {
     
@@ -45,7 +48,11 @@ export default {
       loaded: false,
       all_associations: [],
       associations: [],
+      activities: [],
       labels: [],
+      message: {},
+      activities_message: [],
+      summaryActivities: {},
       showError: false,
       errorMessage: 'Please enter a package name',
       ticker: null,
@@ -61,6 +68,13 @@ export default {
     this.message = this.convertToArray(data);
     this.all_associations = this.getAssociationsFromArray(this.message);
     this.labels = this.getDatesFromArray(this.message);
+
+    const activities_resp = await fetch("/api/activities");
+    const activities_data = await activities_resp.text();
+    this.activities_message = this.convertToArray(activities_data);
+    this.activities = this.parseActivitiesArray(this.activities_message);
+    this.summaryActivities = this.getSummaryActivityData(this.activities);
+
     this.authenticated = this.getUserInfo();
     this.loaded = true;
   },
@@ -120,6 +134,17 @@ export default {
       }
       return data;
     },
+    parseActivitiesArray: function(arr) {
+      let arr2 = new Array();
+      for (let i=0; i<arr.length; i++) {
+        let set = {};
+        set.ActivityCode = arr[i]["ActivityCode"];
+        set.FollowupStartDate = arr[i]["FollowupStartDate"];
+        set.WhoOwnerCode = arr[i]["WhoOwnerCode"];
+        arr2[i] = set;
+      }
+      return arr2;
+    },
     getTickerFromAssociationsArray: function(arr) {
       const ticker = arr.slice(-1)[0];
       return ticker;
@@ -162,6 +187,50 @@ export default {
         up = false;
       }
       return up;
+    },
+    getSummaryActivityData: function(arr) {
+      let summaryDict = {};
+      let summaryCount = 1;
+      for (let i=0; i<arr.length; i++) {
+        let key = arr[i]["WhoOwnerCode"];
+        if (summaryDict[key] === undefined) {
+          summaryDict[key] = key;
+          summaryDict[key] = { Name: key, Count: summaryCount }
+        } else {
+          let value = summaryDict[key]["Count"];
+          summaryDict[key]["Count"] = value + 1;
+        }
+      }
+      console.log(summaryDict);
+      return summaryDict;
+    },
+    getKeysFromDict: function(dict) {
+      let keys = [];
+      let values = [];
+      let i = 0;
+      for (const [key, value] of Object.entries(dict)) {
+        console.log(key);
+        keys[i] = value.Name;
+        values[i] = value.Count;
+        i++;
+      }
+      console.log(keys);
+      console.log(values);
+      return keys;
+    }, 
+    getValuesFromDict: function(dict) {
+      let keys = [];
+      let values = [];
+      let i = 0;
+      for (const [key, value] of Object.entries(dict)) {
+        console.log(key);
+        keys[i] = value.Name;
+        values[i] = value.Count;
+        i++;
+      }
+      console.log(keys);
+      console.log(values);
+      return values;
     }
   }
 }

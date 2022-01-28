@@ -4,8 +4,7 @@ module.exports = async function (context, req) {
     const fs = require('fs')
 
     try {
-        const data = fs.readFileSync('message/epicData.csv', 'utf8');
-        //context.log(data);
+        const data = fs.readFileSync('activities/activitiesReport.csv', 'utf8');
         context.res = {
             // status: 200, /* Defaults to 200 */
             body: data
